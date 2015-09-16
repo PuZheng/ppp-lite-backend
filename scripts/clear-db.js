@@ -8,7 +8,6 @@ function clearDB(knex) {
 module.exports = clearDB;
 
 if (require.main === module) {
-    var unlink = q.denodeify(fs.unlink);
     clearDB().catch(function (err) {
         if (err.code != 'ENOENT') {
             throw err; 
