@@ -22,6 +22,12 @@ var conf = convict({
     },
     env: "KNEX_OPTS",
   },
+  port: {
+      doc: "port",
+      format: "port",
+      default: 8081,
+      env: "PORT",
+  }
 });
 
 var env = conf.get('env');

@@ -1,3 +1,5 @@
+#! /usr/bin/env node
+
 var knex = require('../setup-knex.js');
 var q = require('q');
 var fs = require('fs');
