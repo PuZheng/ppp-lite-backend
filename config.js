@@ -1,0 +1,34 @@
+var convict = require('convict');
+ 
+// Define a schema 
+var conf = convict({
+  env: {
+    doc: "The applicaton environment.",
+    format: ["production", "development", "test"],
+    default: "development",
+    env: "NODE_ENV"
+  },
+  knexOpts: {
+    doc: "knex setup options",
+    format: function (val) {
+        
+    },
+    default: {
+        client: 'sqlite3',
+        connection: {
+            filename: './db',
+        },
+        debug: true
+    },
+    env: "KNEX_OPTS",
+  },
+});
+
+var env = conf.get('env');
+
+env != "development" && conf.loadFile('./config/' + env + '.json');
+ 
+// Perform validation 
+conf.validate({strict: true});
+ 
+module.exports = conf;

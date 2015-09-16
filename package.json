@@ -1,0 +1,33 @@
+{
+  "name": "ppp-lite-backend",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/PuZheng/ppp-lite-backend.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/PuZheng/ppp-lite-backend/issues"
+  },
+  "homepage": "https://github.com/PuZheng/ppp-lite-backend#readme",
+  "dependencies": {
+    "chance": "^0.7.7",
+    "co-busboy": "^1.3.0",
+    "convict": "^1.0.1",
+    "knex": "^0.8.6",
+    "koa": "^1.0.0",
+    "koa-body": "^1.2.1",
+    "koa-router": "^5.1.2",
+    "underscore": "^1.8.3"
+  },
+  "devDependencies": {
+    "q": "^1.4.1",
+    "sqlite3": "^3.1.0"
+  }
+}
