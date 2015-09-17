@@ -17,6 +17,7 @@ router.get('/project/list.json', function *(next) {
     q = knex('TB_PROJECT as p').select(
         'p.id as _id',
         'p.name as _name',
+        'p.budget as _budget',
         'p.description as _description',
         'p.created_at as _created_at',
         'p.updated_at as _updated_at',
@@ -41,6 +42,7 @@ router.get('/project/list.json', function *(next) {
                 description: row._description,
                 createdAt: row._created_at,
                 updatedAt: row._updated_at,
+                budget: row._budget,
                 projectType: {
                     id: row.pt_id, 
                     name: row.pt_name,

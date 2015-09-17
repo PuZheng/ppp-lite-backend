@@ -28,7 +28,10 @@ initDB(knex).then(function () {
     return knex.insert(_(64).times(function () {
         return {
             name: chance.word(),
-            budget: chance.natural(),
+            budget: chance.natural({
+                min: 10000, 
+                max: 3000 * 10000
+            }),
             description: chance.sentence(),
             created_at: new Date(),
             project_type_id: _.sample(types).id,
