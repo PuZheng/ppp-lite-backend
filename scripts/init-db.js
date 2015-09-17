@@ -10,8 +10,15 @@ var initDB = function (knex) {
             table.integer('budget');
             table.string('description', 256);
             table.timestamps();
+            table.integer('project_type_id').references('TB_PROJECT_TYPE.id');
         });
     }).then(function () {
+        return knex.schema.createTable('TB_PROJECT_TYPE', function (table) {
+            table.increments();
+            table.string('name');
+            table.string('description', 256);
+            table.timestamps();
+        });
     });
 };
 
