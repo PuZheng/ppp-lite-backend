@@ -13,6 +13,7 @@ initDB(knex).then(function () {
         return {
             name: chance.word(),
             budget: chance.natural(),
+            description: chance.sentence(),
             created_at: new Date(),
         };
     })).into('TB_PROJECT');
