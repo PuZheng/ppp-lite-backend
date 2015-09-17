@@ -8,6 +8,7 @@ var initDB = function (knex) {
             table.increments();
             table.string('name');
             table.integer('budget');
+            table.string('description', 256);
             table.timestamps();
         });
     }).then(function () {
