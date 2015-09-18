@@ -44,6 +44,9 @@ router.get('/project/project-list.json', function *(next) {
         totalCount: totalCount,
     };
     yield next;
+}).get('/project/project-object/:id', function *(next) {
+    this.body = yield models.Project.where('id', this.params.id).fetch({ withRelated: ['projectType'] });
+    yield next;
 });
 
 
