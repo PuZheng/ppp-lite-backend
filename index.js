@@ -11,6 +11,7 @@ var router = require('koa-router')();
 var logger = bunyan.createLogger({name: "ppp-lite"});
 var koaLogger = require('koa-bunyan');
 var models = require('./models.js');
+var casing = require('casing');
 
 router.get('/project/project-list.json', function *(next) {
     var model = models.Project;
@@ -30,7 +31,7 @@ router.get('/project/project-list.json', function *(next) {
     };
     yield next;	
 }).post('/project/project-object', koaBody, function *(next) {
-    var data = this.request.body;
+    var data = casing.snakeize(this.request.body);
     data.created_at = new Date();
     var model = yield models.Project.forge(data).save();
     this.body = (yield model.load('projectType')).toJSON();
@@ -47,6 +48,10 @@ router.get('/project/project-list.json', function *(next) {
 }).get('/project/project-object/:id', function *(next) {
     this.body = yield models.Project.where('id', this.params.id).fetch({ withRelated: ['projectType'] });
     yield next;
+}).put('/project/project-object/:id', koaBody, function *(next) {
+    console.log(this.request.body);
+    this.body = yield models.Project.forge({'id': this.params.id}).save(casing.snakeize(this.request.body), { patch: true });
+    yield next;	
 });
 
 

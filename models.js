@@ -1,6 +1,6 @@
 var knex = require('./setup-knex.js');
 var bookshelf = require('bookshelf')(knex);
-var camelcaseKeys = require('camelcase-keys-recursive');
+var casing = require('casing');
 
 var Project = bookshelf.Model.extend({
     tableName: 'TB_PROJECT',
@@ -8,14 +8,14 @@ var Project = bookshelf.Model.extend({
         return this.belongsTo(ProjectType, 'project_type_id');
     },
     serialize: function () {
-        return camelcaseKeys(bookshelf.Model.prototype.serialize.apply(this));
+        return casing.camelize(bookshelf.Model.prototype.serialize.apply(this));
     }
 });
 
 var ProjectType = bookshelf.Model.extend({
     tableName: 'TB_PROJECT_TYPE',
     serialize: function () {
-        return camelcaseKeys(bookshelf.Model.prototype.serialize.apply(this));
+        return casing.camelize(bookshelf.Model.prototype.serialize.apply(this));
     }
 });
 
