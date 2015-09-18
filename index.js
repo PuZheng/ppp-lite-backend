@@ -12,9 +12,9 @@ var logger = bunyan.createLogger({name: "ppp-lite"});
 var koaLogger = require('koa-bunyan');
 var models = require('./models.js');
 
-router.get('/project/list.json', function *(next) {
-    var totalCount = yield models.Project.count();
+router.get('/project/project-list.json', function *(next) {
     var model = models.Project;
+    var totalCount = yield model.count();
     
     if (this.query.page && this.query.per_page) {
         var page = parseInt(this.query.page);
@@ -29,10 +29,19 @@ router.get('/project/list.json', function *(next) {
         totalCount: totalCount,
     };
     yield next;	
-}).post('/project/object', koaBody, function *(next) {
+}).post('/project/project-object', koaBody, function *(next) {
     var model = yield models.Project.forge(this.request.body).save();
     this.body = (yield model.load('projectType')).toJSON();
     yield next;	
+}).get('/project/project-type-list.json', function *(next) {
+    var model = models.ProjectType;
+    var totalCount = yield model.count();
+
+    this.body = {
+        data: (yield model.fetchAll()).toJSON(),
+        totalCount: totalCount,
+    };
+    yield next;
 });
 
 
