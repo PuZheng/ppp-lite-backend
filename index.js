@@ -20,7 +20,7 @@ router.get('/project/project-list.json', function *(next) {
         var page = parseInt(this.query.page);
         var perPage = parseInt(this.query.per_page);
         model = model.query(function (q) {
-            q.offset((page - 1) * perPage).limit(perPage);
+            q.offset((page - 1) * perPage).limit(perPage).orderBy('created_at', 'desc');
         });
     }
 
@@ -30,7 +30,9 @@ router.get('/project/project-list.json', function *(next) {
     };
     yield next;	
 }).post('/project/project-object', koaBody, function *(next) {
-    var model = yield models.Project.forge(this.request.body).save();
+    var data = this.request.body;
+    data.created_at = new Date();
+    var model = yield models.Project.forge(data).save();
     this.body = (yield model.load('projectType')).toJSON();
     yield next;	
 }).get('/project/project-type-list.json', function *(next) {
