@@ -46,12 +46,34 @@ router.get('/project/project-list.json', function *(next) {
     };
     yield next;
 }).get('/project/project-object/:id', function *(next) {
-    this.body = yield models.Project.where('id', this.params.id).fetch({ withRelated: ['projectType'] });
+    try {
+        this.body = yield models.Project.where('id', this.params.id).fetch({ withRelated: ['projectType'], require: true });
+    } catch (err) {
+        if (err.message === 'EmptyResponse') {
+            this.response.status = 404;
+        } else {
+            throw err;
+        }
+    }
     yield next;
 }).put('/project/project-object/:id', koaBody, function *(next) {
-    console.log(this.request.body);
     this.body = yield models.Project.forge({'id': this.params.id}).save(casing.snakeize(this.request.body), { patch: true });
     yield next;	
+}).delete('/project/project-object/:id', function *(next) {
+    try {
+        var model = yield models.Project.where('id', this.params.id).fetch({
+            require: true
+        });
+        yield model.destroy();
+    } catch (err) {
+        if (err.message === 'EmptyResponse') {
+            this.response.status = 404;
+        } else {
+            throw err;
+        }
+    }
+    this.body = {};
+    yield next;
 });
 
 
