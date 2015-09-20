@@ -9,6 +9,19 @@ var Project = bookshelf.Model.extend({
     },
     serialize: function () {
         return casing.camelize(bookshelf.Model.prototype.serialize.apply(this));
+    },
+    tags: function () {
+        return this.belongsToMany(Tag, 'TB_PROJECT_TAG', 'project_id', 'tag_id');
+    }
+});
+
+var Tag = bookshelf.Model.extend({
+    tableName: 'TB_TAG',
+    serialize: function () {
+        return {
+            id: this.get('id'),
+            value: this.get('value')
+        };
     }
 });
 

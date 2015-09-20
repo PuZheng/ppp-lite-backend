@@ -26,7 +26,9 @@ router.get('/project/project-list.json', function *(next) {
     }
 
     this.body = {
-        data: (yield model.fetchAll({ withRelated: ['projectType'] })).toJSON(),
+        data: (yield model.fetchAll({ withRelated: ['projectType', 'tags'] })).toJSON({
+            omitPivot: true
+        }),
         totalCount: totalCount,
     };
     yield next;	
@@ -47,7 +49,8 @@ router.get('/project/project-list.json', function *(next) {
     yield next;
 }).get('/project/project-object/:id', function *(next) {
     try {
-        this.body = yield models.Project.where('id', this.params.id).fetch({ withRelated: ['projectType'], require: true });
+        this.body = (yield models.Project.where('id', this.params.id).fetch(
+            { withRelated: ['projectType', 'tags'], require: true })).toJSON({ omitPivot: true });
     } catch (err) {
         if (err.message === 'EmptyResponse') {
             this.response.status = 404;
