@@ -15,7 +15,7 @@ var initDB = function (knex) {
             table.timestamps();
     }).createTable('TB_TAG', function (table) {
         table.increments();
-        table.string('value');
+        table.string('value').unique();
     }).createTable('TB_PROJECT_TAG', function (table) {
         table.integer('project_id').references('TB_PROJECT.id'),
         table.integer('tag_id').references('TB_TAG.id');

@@ -36,6 +36,7 @@ var ProjectType = bookshelf.Model.extend({
 module.exports = {
     Project: Project,
     ProjectType: ProjectType,
+    Tag: Tag,
 };
 
 if (require.main === module) {
