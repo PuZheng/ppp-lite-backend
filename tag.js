@@ -15,7 +15,7 @@ router.get('/tag-list.json', function *(next) {
     try {
         this.body = (yield models.Tag.forge(this.request.body).save()).toJSON();
     } catch (err) {
-        if (err && err.code == 'SQLITE_CONSTRAINT') {
+        if (err && err.code === 'SQLITE_CONSTRAINT') {
             this.body = {
                 reason: 'tag already exists'
             };
