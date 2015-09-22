@@ -31,8 +31,12 @@ router.get('/project-list.json', function *(next) {
     yield next;	
 }).post('/project-object', koaBody, function *(next) {
     var data = casing.snakeize(this.request.body);
+    tags = data.tags;
+    data = _.omit(data, 'tags');
+    
     data.created_at = new Date();
     var model = yield models.Project.forge(data).save();
+    yield model.tags().attach(tags);
     this.body = (yield model.load('projectType')).toJSON();
     yield next;	
 }).get('/project-type-list.json', function *(next) {
