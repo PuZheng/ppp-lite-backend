@@ -32,6 +32,18 @@ var ProjectType = bookshelf.Model.extend({
     }
 });
 
+var User = bookshelp.Model.extend({
+    login: function (email, password) {
+        if (!email || !password) {
+            var err = new Error('请输入用户邮箱或者密码');
+            err.code = 'MISS_FIELDS';
+            throw err;
+        }
+        return new this({email: email.toLowerCase().trim()}).fetch({require: true}).tap(function(customer) {
+            return bcrypt.compareAsync(customer.get('password'), password);
+        });
+    }
+});
 
 module.exports = {
     Project: Project,
@@ -50,3 +62,4 @@ if (require.main === module) {
         knex.destroy();
     });
 }
+
