@@ -19,6 +19,10 @@ var initDB = function (knex) {
     }).createTable('TB_PROJECT_TAG', function (table) {
         table.integer('project_id').references('TB_PROJECT.id'),
         table.integer('tag_id').references('TB_TAG.id');
+    }).createTable('TB_USER', function (table) {
+        table.increments();
+        table.string('email');
+        table.string('password');
     });
 };
 

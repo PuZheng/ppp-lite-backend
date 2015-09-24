@@ -1,23 +1,29 @@
 var koa = require('koa');
-var router = require('koa-router');
+var router = require('koa-router')();
 var models = require('./models.js');
+var config = require('./config.js');
+var koaBody = require('koa-body')();
+var jwt = require('koa-jwt');
 var fs = require('mz/fs');
 
-var privateKey = null; 
-var publicKey = null;
 
-router.post('/login', function *(next) {
-    if (!privateKey) {
-        privateKey = yield fs.read
-    }
+var privateKey;
+
+router.post('/login', koaBody, function *(next) {
     try {
-        var user = models.User.login(this.params.email, this.params.password).toJSON();
-        var token = jwt.sign(user, privateKey, {algorithm: 'RS256'});
+        var email = this.request.body.email;
+        var password = this.request.body.password;
+        var user = (yield models.User.login(email, password)).toJSON();
+        console.log(user);
+        privateKey = privateKey || (yield fs.readFile(config.get('privateKey'))).toString(); 
+        var token = jwt.sign(user, privateKey, { 
+            algorithm: 'RS256'
+        });
         user.token = token;
         this.body = user;
     } catch (error) {
         this.body = {
-            reason: errors.message,
+            reason: error.message,
         };
         this.response.status = 403;
     }
@@ -25,6 +31,7 @@ router.post('/login', function *(next) {
 });
 
 var app = koa();
+app.use(router.routes()).use(router.allowedMethods());
 
 
-modules.exports = app;
+module.exports = app;

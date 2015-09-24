@@ -1,6 +1,7 @@
 var knex = require('./setup-knex.js');
 var bookshelf = require('bookshelf')(knex);
 var casing = require('casing');
+var bcrypt = require('bcrypt');
 
 var Project = bookshelf.Model.extend({
     tableName: 'TB_PROJECT',
@@ -32,15 +33,25 @@ var ProjectType = bookshelf.Model.extend({
     }
 });
 
-var User = bookshelp.Model.extend({
+var User = bookshelf.Model.extend({
+    tableName: 'TB_USER',
+}, {
     login: function (email, password) {
         if (!email || !password) {
             var err = new Error('请输入用户邮箱或者密码');
             err.code = 'MISS_FIELDS';
             throw err;
         }
-        return new this({email: email.toLowerCase().trim()}).fetch({require: true}).tap(function(customer) {
-            return bcrypt.compareAsync(customer.get('password'), password);
+        return new this({email: email.toLowerCase().trim()}).fetch({require: true}).tap(function(user) {
+            return new Promise(function (resolve, reject) {
+                return bcrypt.compare(password, user.get('password'), function (error, same) {
+                    if (!same) {
+                        reject(new Error('incorrect email or password'));
+                    } else {
+                        resolve(user);
+                    }
+                });
+            });
         });
     }
 });
@@ -49,6 +60,7 @@ module.exports = {
     Project: Project,
     ProjectType: ProjectType,
     Tag: Tag,
+    User: User,
 };
 
 if (require.main === module) {

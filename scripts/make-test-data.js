@@ -7,6 +7,9 @@ var fs = require('fs');
 var initDB = require('./init-db.js');
 var _ = require('lodash');
 var chance = require('chance')();
+var bunyan = require('bunyan');
+var log = bunyan.createLogger({name: 'make test data'});
+var bcrypt = require('bcrypt');
 
 co(function *() {
     yield initDB(knex);
@@ -70,6 +73,19 @@ co(function *() {
         ).value();
     }));
     yield knex.insert(data).into('TB_PROJECT_TAG');
+
+    console.log('create users...');
+    var hash = yield new Promise(function (resolve, reject) {
+        bcrypt.genSalt(10, function (err, salt) {
+            bcrypt.hash('test', salt, function(err, hash) {
+                resolve(hash);
+            });
+        });
+    });
+    yield knex.insert({
+        email: 'xiechao06@gmail.com',
+        password: hash
+    }).into('TB_USER');
 }).then(function () {
     knex.destroy();
     console.log('make test data done!');

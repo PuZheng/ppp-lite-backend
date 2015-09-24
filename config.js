@@ -27,7 +27,17 @@ var conf = convict({
       format: "port",
       default: 8081,
       env: "PORT",
-  }
+  },
+  privateKey: {
+      doc: 'private key',
+      format: String,
+      default: "private.pem",
+  },
+  publicKey: {
+      doc: 'public key',
+      format: String,
+      default: "public.pem",
+  },
 });
 
 var env = conf.get('env');
