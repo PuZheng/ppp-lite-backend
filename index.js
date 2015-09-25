@@ -21,7 +21,8 @@ app.use(cors())
     timeLimit: 100
 }))
 .use(mount('/project', require('./project.js')))
-.use(mount('/tag', require('./tag.js')));
+.use(mount('/tag', require('./tag.js')))
+.use(mount('/auth', require('./auth.js')));
 
 
 var config = require('./config.js');
