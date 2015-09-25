@@ -14,7 +14,7 @@ router.post('/login', koaBody, function *(next) {
         var email = this.request.body.email;
         var password = this.request.body.password;
         var user = (yield models.User.login(email, password)).toJSON();
-        console.log(user);
+        delete user.password;
         privateKey = privateKey || (yield fs.readFile(config.get('privateKey'))).toString(); 
         var token = jwt.sign(user, privateKey, { 
             algorithm: 'RS256'
