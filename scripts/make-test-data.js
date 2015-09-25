@@ -74,17 +74,37 @@ co(function *() {
     }));
     yield knex.insert(data).into('TB_PROJECT_TAG');
 
-    console.log('create users...');
+    console.log('creating roles...');
+    yield knex('TB_ROLE').insert([
+       '业主',
+       'PPP中心',
+       '咨询顾问',
+       '投资人',
+       '政府代表',
+    ].map(function (role) {
+        return {
+            name: role 
+        };
+    }));
+
+    var roles = {}; 
+    for (var role of (yield knex('TB_ROLE').select('*'))) {
+        roles[role.name] = role;
+    }
+
+    console.log('creating users...');
     var hash = yield new Promise(function (resolve, reject) {
         bcrypt.genSalt(10, function (err, salt) {
-            bcrypt.hash('test', salt, function(err, hash) {
+            bcrypt.hash('ppp-yezhu', salt, function(err, hash) {
                 resolve(hash);
             });
         });
     });
     yield knex.insert({
-        email: 'xiechao06@gmail.com',
-        password: hash
+        email: 'ppp-yezhu@gmail.com',
+        password: hash,
+        role_id: roles['业主'].id,
+        created_at: new Date(),
     }).into('TB_USER');
 }).then(function () {
     knex.destroy();

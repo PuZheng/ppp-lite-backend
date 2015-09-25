@@ -23,6 +23,11 @@ var initDB = function (knex) {
         table.increments();
         table.string('email');
         table.string('password');
+        table.integer('role_id').references('TB_ROLE.id');
+        table.timestamps();
+    }).createTable('TB_ROLE', function (table) {
+        table.increments();
+        table.string('name').unique();
     });
 };
 

@@ -35,6 +35,9 @@ var ProjectType = bookshelf.Model.extend({
 
 var User = bookshelf.Model.extend({
     tableName: 'TB_USER',
+    role: function () {
+        return this.belongsTo(Role, 'role_id');
+    }
 }, {
     login: function (email, password) {
         if (!email || !password) {
@@ -42,7 +45,7 @@ var User = bookshelf.Model.extend({
             err.code = 'MISS_FIELDS';
             throw err;
         }
-        return new this({email: email.toLowerCase().trim()}).fetch({require: true}).tap(function(user) {
+        return new this({email: email.toLowerCase().trim()}).fetch({ withRelated: 'role', require: true}).tap(function(user) {
             return new Promise(function (resolve, reject) {
                 return bcrypt.compare(password, user.get('password'), function (error, same) {
                     if (!same) {
@@ -54,6 +57,10 @@ var User = bookshelf.Model.extend({
             });
         });
     }
+});
+
+var Role = bookshelf.Model.extend({
+    tableName: 'TB_ROLE',
 });
 
 module.exports = {
