@@ -1,4 +1,1 @@
-.Session.vim
-*.sw[p|o]
-db
-node_modules/
+private.pem
