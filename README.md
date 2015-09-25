@@ -8,6 +8,10 @@ npm install
  
 ./scripts/clear-db.js && ./scripts/make-test-data.js
 
+## generate keys
+
+gulp generate-keys
+
 ## run
 
 gulp
