@@ -93,19 +93,59 @@ co(function *() {
     }
 
     console.log('creating users...');
-    var hash = yield new Promise(function (resolve, reject) {
-        bcrypt.genSalt(10, function (err, salt) {
-            bcrypt.hash('ppp-yezhu', salt, function(err, hash) {
-                resolve(hash);
+
+    var genHash = function (user) {
+        return new Promise(function (resolve, reject) {
+            bcrypt.genSalt(10, function (err, salt) {
+                bcrypt.hash(user, salt, function(err, hash) {
+                    resolve(hash);
+                });
             });
         });
-    });
-    yield knex.insert({
-        email: 'ppp-yezhu@gmail.com',
-        password: hash,
-        role_id: roles['业主'].id,
-        created_at: new Date(),
-    }).into('TB_USER');
+    };
+    for (var users of [
+        {
+            users: _.times(3, function (n) {
+                return 'mzj' + n;
+            }),
+            department: '民政局'
+        },
+        {
+            users: _.times(3, function (n) {
+                return 'gaj' + n;
+            }),
+            department: '公安局',
+        },
+        {
+            users: _.times(3, function (n) {
+                return 'jyj' + n;
+            }),
+            department: '教育局'
+        },
+        {
+            users: _.times(3, function (n) {
+                return 'wsj' + n;
+            }),
+            department: '卫生局'
+        }
+    ]) {
+        var departmentId = (yield knex('TB_DEPARTMENT').insert({
+            name: users.department
+        }))[0];
+        for (var user of users.users) {
+            var hash = yield genHash(user);
+            var userId = (yield knex.insert({
+                email: user + '@gmail.com',
+                password: hash,
+                role_id: roles['业主'].id,
+                created_at: new Date(),
+            }).into('TB_USER'))[0];
+            yield knex('TB_USER_DEPARTMENT').insert({
+                department_id: departmentId,
+                user_id: userId,
+            });
+        }
+    }
 }).then(function () {
     knex.destroy();
     console.log('make test data done!');

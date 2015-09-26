@@ -28,6 +28,12 @@ var initDB = function (knex) {
     }).createTable('TB_ROLE', function (table) {
         table.increments();
         table.string('name').unique();
+    }).createTable('TB_DEPARTMENT', function (table) {
+        table.increments();
+        table.string('name').unique();
+    }).createTable('TB_USER_DEPARTMENT', function (table) {
+        table.integer('user_id').references('TB_USER.id'),
+        table.integer('department_id').references('TB_DEPARTMENT.id');
     });
 };
 
