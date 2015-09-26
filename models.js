@@ -33,10 +33,18 @@ var ProjectType = bookshelf.Model.extend({
     }
 });
 
+var Department = bookshelf.Model.extend({
+    tableName: 'TB_DEPARTMENT'
+});
+
 var User = bookshelf.Model.extend({
     tableName: 'TB_USER',
     role: function () {
         return this.belongsTo(Role, 'role_id');
+    },
+    department: function () {
+        return this.belongsToMany(Department, 'TB_USER_DEPARTMENT', 'user_id', 
+                                  'department_id');
     }
 }, {
     login: function (email, password) {
@@ -45,7 +53,8 @@ var User = bookshelf.Model.extend({
             err.code = 'MISS_FIELDS';
             throw err;
         }
-        return new this({email: email.toLowerCase().trim()}).fetch({ withRelated: 'role', require: true}).tap(function(user) {
+
+        return new this({email: email.toLowerCase().trim()}).fetch({ withRelated: ['role', 'department'], require: true}).tap(function(user) {
             return new Promise(function (resolve, reject) {
                 return bcrypt.compare(password, user.get('password'), function (error, same) {
                     if (!same) {
@@ -55,6 +64,8 @@ var User = bookshelf.Model.extend({
                     }
                 });
             });
+        }).catch(function (err) {
+            throw new Error('incorrect email or password');
         });
     }
 });
