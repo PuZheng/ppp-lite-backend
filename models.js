@@ -42,10 +42,6 @@ var User = bookshelf.Model.extend({
     role: function () {
         return this.belongsTo(Role, 'role_id');
     },
-    department: function () {
-        return this.belongsToMany(Department, 'TB_USER_DEPARTMENT', 'user_id', 
-                                  'department_id');
-    }
 }, {
     login: function (email, password) {
         if (!email || !password) {
@@ -54,7 +50,7 @@ var User = bookshelf.Model.extend({
             throw err;
         }
 
-        return new this({email: email.toLowerCase().trim()}).fetch({ withRelated: ['role', 'department'], require: true}).tap(function(user) {
+        return new this({email: email.toLowerCase().trim()}).fetch({ withRelated: ['role'], require: true}).tap(function(user) {
             return new Promise(function (resolve, reject) {
                 return bcrypt.compare(password, user.get('password'), function (error, same) {
                     if (!same) {
@@ -79,6 +75,7 @@ module.exports = {
     ProjectType: ProjectType,
     Tag: Tag,
     User: User,
+    Department: Department,
 };
 
 if (require.main === module) {
