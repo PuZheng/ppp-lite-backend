@@ -5,6 +5,7 @@ var co = require('co');
 var fs = require('fs');
 
 var initDB = require('./init-db.js');
+var setupData = require('./setup-data.js');
 var _ = require('lodash');
 var chance = require('chance')();
 var bunyan = require('bunyan');
@@ -12,7 +13,7 @@ var log = bunyan.createLogger({name: 'make test data'});
 var bcrypt = require('bcrypt');
 
 co(function *() {
-    yield initDB(knex);
+    yield setupData();
     console.log('creating project types...');
     yield knex.insert([
         '市政基础设施建设',
