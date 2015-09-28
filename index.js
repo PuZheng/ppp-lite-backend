@@ -3,9 +3,9 @@ var cors = require('kcors');
 var knex = require('./setup-knex.js');
 var bunyan = require('bunyan');
 var mount = require('koa-mount');
+var slow = require('koa-slow');
 
 var app = koa();
-var router = require('koa-router')();
 
 var logger = bunyan.createLogger({name: "ppp-lite"});
 var koaLogger = require('koa-bunyan');
@@ -22,8 +22,11 @@ app.use(cors())
 }))
 .use(mount('/project', require('./project.js')))
 .use(mount('/tag', require('./tag.js')))
-.use(mount('/auth', require('./auth.js')));
+.use(mount('/auth', require('./auth.js')))
+.use(mount('/assets', require('./assets.js')));
 
 
 var config = require('./config.js');
+config.get('env') === 'development' && app.use(slow());
+
 app.listen(config.get('port'));

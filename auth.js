@@ -7,7 +7,6 @@ var jwt = require('koa-jwt');
 var fs = require('mz/fs');
 var defs = require('./defs.js');
 
-
 var privateKey;
 
 router.post('/login', koaBody, function *(next) {
