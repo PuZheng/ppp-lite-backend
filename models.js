@@ -11,8 +11,13 @@ var Project = bookshelf.Model.extend({
     serialize: function () {
         return casing.camelize(bookshelf.Model.prototype.serialize.apply(this));
     },
+
     tags: function () {
         return this.belongsToMany(Tag, 'TB_PROJECT_TAG', 'project_id', 'tag_id');
+    },
+
+    assets: function () {
+        return this.belongsToMany(Asset, 'TB_PROJECT_ASSET', 'project_id', 'asset_id');
     }
 });
 
@@ -70,12 +75,22 @@ var Role = bookshelf.Model.extend({
     tableName: 'TB_ROLE',
 });
 
+var Asset = bookshelf.Model.extend({
+    tableName: 'TB_ASSET',
+    serialize: function () {
+        return casing.camelize(bookshelf.Model.prototype.serialize.apply(this));
+    }
+});
+
+
 module.exports = {
     Project: Project,
     ProjectType: ProjectType,
     Tag: Tag,
     User: User,
     Department: Department,
+    Asset: Asset,
+    Role: Role
 };
 
 if (require.main === module) {
