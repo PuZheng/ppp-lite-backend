@@ -16,8 +16,12 @@ gulp.task('serve-dev', function() {
     return nodemon(options);
 });
 
-gulp.task('make-test-data', function () {
-   shelljs.exec('./scripts/clear-db.js && ./scripts/make-test-data.js');
+gulp.task('clean', function () {
+    shelljs.exec('./scripts/clear-db.js && rm -f assets/uploads/*');
+});
+
+gulp.task('make-test-data', ['clean'], function () {
+   shelljs.exec('./scripts/make-test-data.js');
 });
 
 gulp.task('generate-keys', function () {

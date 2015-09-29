@@ -51,7 +51,7 @@ router.get('/project-list.json', function *(next) {
 }).get('/project-object/:id', function *(next) {
     try {
         this.body = (yield models.Project.where('id', this.params.id).fetch(
-            { withRelated: ['projectType', 'tags'], require: true })).toJSON({ omitPivot: true });
+            { withRelated: ['projectType', 'tags', 'assets'], require: true })).toJSON({ omitPivot: true });
     } catch (err) {
         if (err.message === 'EmptyResponse') {
             this.response.status = 404;
@@ -63,26 +63,37 @@ router.get('/project-list.json', function *(next) {
 }).put('/project-object/:id', koaBody, function *(next) {
     var model = models.Project.forge({'id': this.params.id});
     var request = this.request.body;
+    var handlers = {
+        'tags': function (key, tags, t) {
+            return tags.map(function (tag) {
+                if (tag.op === 'delete') {
+                    return model.tags().detach(tag.id, { transacting: t });
+                } else if (tag.op === 'add') {
+                    return model.tags().attach(tag.id, { transacting: t });
+                }
+            });
+        },
+        'assets': function (key, assets, t) {
+            return assets.map(function (asset) {
+                if (asset.op === 'delete') {
+                    return model.assets().detach(asset.id, { transacting: t });
+                } else if (asset.op === 'add') {
+                    return model.assets().attach(asset.id, { transacting: t });
+                }
+            });
+        },
+    };
+    var defaultHandler = function (key, value, t) {
+        return [model.save(casing.snakeize(_.object([[key, value]])), { patch: true, transacting: t})];
+    };
     yield Bookshelf.transaction(function (t) {
-        for (var k in request) {
-            switch (k) {
-                case 'tags': {
-                    for (var i = 0; i < request[k].length; ++i) {
-                        var arg = request[k][i];
-                        if (arg.op === 'delete') {
-                            model.tags().detach(arg.id, { transacting: t }).then(t.commit);
-                        } else if (arg.op === 'add') {
-                            model.tags().attach(arg.id, { transacting: t }).then(t.commit);
-                        }
-                    }
-                    break;
-                }
-                default: {
-                    model.save(casing.snakeize(_.object([[k, request[k]]])), { patch: true, transacting: t}).then(t.commit);
-                    break;
-                }
-            }
-        }
+        return Promise.all(
+            _(request).pairs().map(function (pair) {
+                var key = pair[0];
+                var value = pair[1];
+                return (~['tags', 'assets'].indexOf(key)? handlers[key]: defaultHandler)(key, value, t);
+            }).flatten().value()
+        ).then(t.commit);
     });
     this.body = {};
     yield next;	
