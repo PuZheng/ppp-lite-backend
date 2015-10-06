@@ -23,10 +23,13 @@ app.use(cors())
 .use(mount('/project', require('./project.js')))
 .use(mount('/tag', require('./tag.js')))
 .use(mount('/auth', require('./auth.js')))
+.use(mount('/workflow', require('./workflow.js')))
 .use(mount('/assets', require('./assets.js')));
 
 
 var config = require('./config.js');
-config.get('env') === 'development' && app.use(slow());
+config.get('env') === 'development' && app.use(slow({
+    delay: config.get('fake_delay'),
+}));
 
 app.listen(config.get('port'));

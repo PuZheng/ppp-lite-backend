@@ -7,10 +7,12 @@ var json = require('koa-json');
 var Bookshelf = require('bookshelf')(knex);
 var casing = require('casing');
 var _ = require('lodash');
+var workflowEngine = require('./setup-workflow.js');
 
 var app = koa();
 
 router.get('/project-list.json', function *(next) {
+    'use strict';
     var model = models.Project;
     var totalCount = yield model.count();
     
@@ -22,10 +24,24 @@ router.get('/project-list.json', function *(next) {
         });
     }
 
+    if (this.query.published) {
+        if (parseInt(this.query.published) === 0) {
+            model = model.where('workflow_id', null);
+        } else if (parseInt(this.query.published) == 1) {
+            model = model.where('workflow_id', '<>', 'null');
+        }
+    }
+
+    var data = (yield model.fetchAll({ withRelated: ['projectType', 'tags'] })).toJSON({
+        omitPivot: true
+    });
+
+    for (let p of data) {
+        p.workflowId && (p.workflow = (yield workflowEngine.loadWorkflow(p.workflowId)).toJSON());
+    }
+
     this.body = {
-        data: (yield model.fetchAll({ withRelated: ['projectType', 'tags'] })).toJSON({
-            omitPivot: true
-        }),
+        data: data,
         totalCount: totalCount,
     };
     yield next;	
@@ -50,14 +66,18 @@ router.get('/project-list.json', function *(next) {
     yield next;
 }).get('/project-object/:id', function *(next) {
     try {
-        this.body = (yield models.Project.where('id', this.params.id).fetch(
-            { withRelated: ['projectType', 'tags', 'assets'], require: true })).toJSON({ omitPivot: true });
+        var rsp = (yield models.Project.where('id', this.params.id).fetch(
+            { 
+                withRelated: ['projectType', 'tags', 'assets'], require: true 
+            })).toJSON({ omitPivot: true });
+        rsp.workflowId && (rsp.workflow = (yield workflowEngine.loadWorkflow(rsp.workflowId)).toJSON());
+        this.body = rsp;
     } catch (err) {
-        if (err.message === 'EmptyResponse') {
-            this.response.status = 404;
-        } else {
+        console.log('asdfalksdaflsjdlsfadlskj', err);
+        if (err.message != 'EmptyResponse') {
             throw err;
         }
+        this.status = 404;
     }
     yield next;
 }).put('/project-object/:id', koaBody, function *(next) {
@@ -104,11 +124,10 @@ router.get('/project-list.json', function *(next) {
         });
         yield model.destroy();
     } catch (err) {
-        if (err.message === 'EmptyResponse') {
-            this.response.status = 404;
-        } else {
+        if (err.message != 'EmptyResponse') {
             throw err;
         }
+        this.status = 404;
     }
     this.body = {};
     yield next;

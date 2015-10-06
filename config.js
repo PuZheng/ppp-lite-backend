@@ -22,6 +22,12 @@ var conf = convict({
     },
     env: "KNEX_OPTS",
   },
+  fake_delay: {
+      doc: "faked delay",
+      format: 'int',
+      default: 500,
+      env: "FAKE_DELAY",
+  },
   port: {
       doc: "port",
       format: "port",

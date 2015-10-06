@@ -8,6 +8,7 @@ var initDB = function (knex) {
         table.string('description', 256);
         table.timestamps();
         table.integer('project_type_id').references('TB_PROJECT_TYPE.id');
+        table.integer('workflow_id').references('TB_WORKFLOW.id');
     }).createTable('TB_PROJECT_TYPE', function (table) {
             table.increments();
             table.string('name');
@@ -41,8 +42,20 @@ var initDB = function (knex) {
         table.string('token').unique();
         table.timestamps();
     }).createTable('TB_PROJECT_ASSET', function (table) {
-        table.integer('project_id').references('TB_PROJECT.id'),
+        table.integer('project_id').references('TB_PROJECT.id');
         table.integer('asset_id').references('TB_ASSET.id');
+    }).createTable('TB_WORKFLOW', function (table) {
+        table.increments();
+        table.string('type');
+    }).createTable('TB_ACTION', function (table) {
+        table.increments();
+        table.string('task_name').notNullable();
+        table.integer('workflow_id').references('TB_WORKFLOW.id').notNullable();
+        table.integer('operator_id').references('TB_USER.id');
+        table.string('op');
+        table.string('cause');
+        table.text('bundle');
+        table.timestamp('timestamp');
     });
 };
 

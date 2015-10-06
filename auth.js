@@ -29,7 +29,7 @@ router.post('/login', koaBody, function *(next) {
         this.body = {
             reason: error.message,
         };
-        this.response.status = 403;
+        this.status = 403;
     }
     yield next;
 });
