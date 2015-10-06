@@ -18,6 +18,10 @@ var Project = bookshelf.Model.extend({
 
     assets: function () {
         return this.belongsToMany(Asset, 'TB_PROJECT_ASSET', 'project_id', 'asset_id');
+    },
+
+    workflow: function () {
+        return this.belongsTo(Workflow, 'workflow_id');
     }
 });
 
@@ -82,6 +86,23 @@ var Asset = bookshelf.Model.extend({
     }
 });
 
+var Workflow = bookshelf.Model.extend({
+    tableName: 'TB_WORKFLOW',
+    actions: function () {
+        return this.hasMany(Action, 'workflow_id');
+    }
+});
+
+var Action = bookshelf.Model.extend({
+    tableName: 'TB_ACTION',
+    workflow: function () {
+        return this.belongsTo(Workflow, 'workflow_id');
+    },
+    serialize: function () {
+        return casing.camelize(bookshelf.Model.prototype.serialize.apply(this));
+    }
+});
+
 
 module.exports = {
     Project: Project,
@@ -90,7 +111,9 @@ module.exports = {
     User: User,
     Department: Department,
     Asset: Asset,
-    Role: Role
+    Role: Role,
+    Workflow: Workflow,
+    Action: Action,
 };
 
 if (require.main === module) {

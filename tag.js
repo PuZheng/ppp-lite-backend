@@ -19,7 +19,7 @@ router.get('/tag-list.json', function *(next) {
             this.body = {
                 reason: 'tag already exists'
             };
-            this.response.status = 404;
+            this.status = 404;
             return;
         } 
         throw err;

@@ -13,6 +13,7 @@ var log = bunyan.createLogger({name: 'make test data'});
 var bcrypt = require('bcrypt');
 
 co(function *() {
+    'use strict';
     yield setupData();
     console.log('creating project types...');
     yield knex.insert([
@@ -128,14 +129,14 @@ co(function *() {
                 return 'wsj' + n;
             }),
             department: '卫生局'
-        }
+        },
     ]) {
-        var departmentId = (yield knex('TB_DEPARTMENT').insert({
+        let departmentId = (yield knex('TB_DEPARTMENT').insert({
             name: users.department
         }))[0];
-        for (var user of users.users) {
-            var hash = yield genHash(user);
-            var userId = (yield knex.insert({
+        for (let user of users.users) {
+            let hash = yield genHash(user);
+            let userId = (yield knex.insert({
                 email: user + '@gmail.com',
                 password: hash,
                 role_id: roles['业主'].id,
@@ -146,6 +147,30 @@ co(function *() {
                 user_id: userId,
             });
         }
+    }
+
+    for (let user of _.times(2, function (n) {
+        return 'ppp' + n;
+    })) {
+        let hash = yield genHash(user);
+        yield knex.insert({
+            email: user + '@gmail.com',
+            password: hash,
+            role_id: roles['PPP中心'].id,
+            created_at: new Date(),
+        }).into('TB_USER');
+    }
+
+    for (let user of _.times(2, function (n) {
+        return 'zx' + n;
+    })) {
+        let hash = yield genHash(user);
+        yield knex.insert({
+            email: user + '@gmail.com',
+            password: hash,
+            role_id: roles['咨询顾问'].id,
+            created_at: new Date(),
+        }).into('TB_USER');
     }
 }).then(function () {
     knex.destroy();

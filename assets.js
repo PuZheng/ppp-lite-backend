@@ -63,11 +63,10 @@ router.post('/', function *(next) {
         var asset = yield models.Asset.where({ path: path_ }).fetch({ required: true });
         yield send(this, asset.get('token'), { root: __dirname + '/assets/uploads' });
     } catch (e) {
-        if (e.message === 'EmptyResponse') {
-            this.response.status = 404;
-        } else {
+        if (e.message != 'EmptyResponse') {
             throw e;
         }
+        this.status = 404;
     }
 }).delete('/uploads\/(.*)/', function *(next) {
     try {
@@ -79,11 +78,10 @@ router.post('/', function *(next) {
         yield asset.destroy();
         this.body = {id: asset.id};
     } catch (e) {
-        if (e.message === 'EmptyResponse') {
-            this.response.status = 404;
-        } else {
+        if (e.message != 'EmptyResponse') {
             throw e;
         }
+        this.status = 404;
     }
 });
 
