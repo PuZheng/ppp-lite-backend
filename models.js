@@ -25,7 +25,7 @@ var Project = bookshelf.Model.extend({
     },
 
     owner: function () {
-        return this.belongsTo(User, 'user_id');
+        return this.belongsTo(User, 'owner_id');
     }
 });
 
@@ -55,6 +55,11 @@ var User = bookshelf.Model.extend({
     role: function () {
         return this.belongsTo(Role, 'role_id');
     },
+    serialize: function () {
+        var ret = casing.camelize(bookshelf.Model.prototype.serialize.apply(this));
+        delete ret.password;
+        return ret;
+    }
 }, {
     login: function (email, password) {
         if (!email || !password) {

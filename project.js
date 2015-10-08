@@ -33,7 +33,7 @@ router.get('/project-list.json', function *(next) {
         }
     }
 
-    var data = (yield model.fetchAll({ withRelated: ['projectType', 'tags'] })).toJSON({
+    var data = (yield model.fetchAll({ withRelated: ['projectType', 'tags', 'owner'] })).toJSON({
         omitPivot: true
     });
 
@@ -70,7 +70,7 @@ router.get('/project-list.json', function *(next) {
     try {
         var rsp = (yield models.Project.where('id', this.params.id).fetch(
             { 
-                withRelated: ['projectType', 'tags', 'assets'], require: true 
+                withRelated: ['projectType', 'tags', 'assets', 'owner'], require: true 
             })).toJSON({ omitPivot: true });
         rsp.workflowId && (rsp.workflow = (yield workflowEngine.loadWorkflow(rsp.workflowId)).toJSON());
         this.body = rsp;
