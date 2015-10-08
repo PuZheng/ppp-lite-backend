@@ -21,7 +21,11 @@ fs.readFile(config.get('publicKey'), function (err, data) {
     app.use(jwt({
         secret: data,
         algorithm: 'RS256',
-    }).unless({ path: [/^\/auth/], method: 'OPTIONS' }))
+    }).unless(function () {
+        return this.method === 'OPTIONS' || 
+            this.url.match(/^\/auth/) ||
+            (this.url.match(/^\/assets/) && this.method === 'GET');
+    }))
     .use(cors())
     .use(koaLogger(logger, {
         // which level you want to use for logging?
