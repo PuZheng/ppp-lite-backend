@@ -8,6 +8,7 @@ var Bookshelf = require('bookshelf')(knex);
 var casing = require('casing');
 var _ = require('lodash');
 var workflowEngine = require('./setup-workflow.js');
+var defs = require('./defs.js');
 
 var app = koa();
 var logger = require('./setup-logger.js');
@@ -31,6 +32,14 @@ router.get('/project-list.json', function *(next) {
         } else if (parseInt(this.query.published) == 1) {
             model = model.where('workflow_id', '<>', 'null');
         }
+    }
+
+    if (this.state.user && this.state.user.role.name === defs.ROLE.OWNER) {
+        var department = (yield knex('TB_DEPARTMENT').join('TB_USER_DEPARTMENT', 'TB_USER_DEPARTMENT.department_id', 'TB_DEPARTMENT.id').where({'TB_USER_DEPARTMENT.user_id': this.state.user.id}).select('TB_DEPARTMENT.id', 'TB_DEPARTMENT.name'))[0];
+        logger.info(department);
+        model = model.query(function (q) {
+            q.join('TB_USER', 'TB_PROJECT.owner_id', 'TB_USER.id').join('TB_USER_DEPARTMENT', 'TB_USER.id', 'TB_USER_DEPARTMENT.user_id').where('TB_USER_DEPARTMENT.department_id', department.id);
+        });
     }
 
     var data = (yield model.fetchAll({ withRelated: ['projectType', 'tags', 'owner'] })).toJSON({
