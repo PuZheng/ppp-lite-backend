@@ -1,15 +1,20 @@
 #! /usr/bin/env node
+var __doc__ = `
+
+setup the minimum data
+
+`;
 
 var knex = require('../setup-knex.js');
 var initDB = require('./init-db.js');
 var co = require('co');
 var path = require('path');
-var fs = require('mz/fs');
+var shell = require('shelljs');
 
 function *setUpData() {
     yield initDB(knex);
     try {
-        yield fs.mkdir(path.join('assets/uploads'));
+        shell.mkdir('-p', path.join('assets/uploads'));
     } catch (err) {
         if (err.code != 'EEXIST') {
             throw err;
