@@ -22,6 +22,10 @@ var Project = bookshelf.Model.extend({
 
     workflow: function () {
         return this.belongsTo(Workflow, 'workflow_id');
+    },
+
+    owner: function () {
+        return this.belongsTo(User, 'user_id');
     }
 });
 

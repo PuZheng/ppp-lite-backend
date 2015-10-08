@@ -26,7 +26,7 @@ gulp.task('make-test-data', ['clean'], function () {
 
 gulp.task('generate-keys', function () {
     shelljs.exec('openssl genrsa -out ' + config.get('privateKey') + ' 1024');
-    shelljs.exec('openssl rsa -in rsa_private_key.pem -pubout -out ' + config.get('publicKey'));
+    shelljs.exec('openssl rsa -in ' + config.get('privateKey') + ' -pubout -out ' + config.get('publicKey'));
 });
 
 gulp.task('default', ['serve-dev']);

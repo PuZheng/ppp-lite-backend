@@ -9,6 +9,7 @@ var initDB = function (knex) {
         table.timestamps();
         table.integer('project_type_id').references('TB_PROJECT_TYPE.id');
         table.integer('workflow_id').references('TB_WORKFLOW.id');
+        table.integer('owner_id').references('TB_USER');
     }).createTable('TB_PROJECT_TYPE', function (table) {
             table.increments();
             table.string('name');

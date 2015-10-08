@@ -10,6 +10,7 @@ var _ = require('lodash');
 var workflowEngine = require('./setup-workflow.js');
 
 var app = koa();
+var logger = require('./setup-logger.js');
 
 router.get('/project-list.json', function *(next) {
     'use strict';
@@ -51,6 +52,7 @@ router.get('/project-list.json', function *(next) {
     data = _.omit(data, 'tags');
     
     data.created_at = new Date();
+    data.owner_id = this.state.user.id;
     var model = yield models.Project.forge(data).save();
     yield model.tags().attach(tags);
     this.body = (yield model.load('projectType')).toJSON();
