@@ -80,6 +80,7 @@ router.get('/project-list.json', function *(next) {
             { 
                 withRelated: ['projectType', 'tags', 'assets', 'owner'], require: true 
             })).toJSON({ omitPivot: true });
+        rsp.department = (yield knex('TB_DEPARTMENT').join('TB_USER_DEPARTMENT', 'TB_USER_DEPARTMENT.department_id', 'TB_DEPARTMENT.id').where('TB_USER_DEPARTMENT.user_id', rsp.ownerId).select('TB_DEPARTMENT.id', 'TB_DEPARTMENT.name'))[0];
         rsp.workflowId && (rsp.workflow = (yield workflowEngine.loadWorkflow(rsp.workflowId)).toJSON());
         this.body = rsp;
     } catch (err) {
