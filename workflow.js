@@ -70,10 +70,7 @@ router.post('/:type', function *(next) {
     }
 });
 
-var app = koa();
 
-app.use(json())
+module.exports = koa().use(json())
 .use(router.routes())
 .use(router.allowedMethods());
-
-module.exports = app;

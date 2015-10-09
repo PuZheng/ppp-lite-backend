@@ -23,7 +23,8 @@ var initDB = function (knex) {
         table.integer('tag_id').references('TB_TAG.id');
     }).createTable('TB_USER', function (table) {
         table.increments();
-        table.string('email');
+        table.string('name');
+        table.string('email').unique();
         table.string('password');
         table.integer('role_id').references('TB_ROLE.id');
         table.timestamps();

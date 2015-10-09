@@ -10,7 +10,6 @@ var _ = require('lodash');
 var workflowEngine = require('./setup-workflow.js');
 var defs = require('./defs.js');
 
-var app = koa();
 var logger = require('./setup-logger.js');
 
 router.get('/project-list.json', function *(next) {
@@ -144,7 +143,6 @@ router.get('/project-list.json', function *(next) {
     yield next;
 });
 
-app.use(json())
+module.exports = koa().use(json())
 .use(router.routes())
 .use(router.allowedMethods());
-module.exports = app;
