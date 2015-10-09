@@ -39,7 +39,8 @@ fs.readFile(config.get('publicKey'), function (err, data) {
     .use(mount('/tag', require('./tag.js')))
     .use(mount('/auth', require('./auth.js')))
     .use(mount('/workflow', require('./workflow.js')))
-    .use(mount('/assets', require('./assets.js')));
+    .use(mount('/assets', require('./assets.js')))
+    .use(mount('/user', require('./user.js')));
     var config = require('./config.js');
     config.get('env') === 'development' && app.use(slow({
         delay: config.get('fake_delay'),
@@ -47,6 +48,3 @@ fs.readFile(config.get('publicKey'), function (err, data) {
 
     app.listen(config.get('port'));
 });
-
-
-
