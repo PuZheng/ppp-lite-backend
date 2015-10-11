@@ -60,6 +60,7 @@ var initDB = function (knex) {
         table.timestamp('timestamp');
     }).createTable('TB_TODO', function (table) {
         table.increments();
+        table.string('type');
         table.string('target');
         table.text('bundle');
         table.integer('project_id').references('TB_PROJECT.id');
