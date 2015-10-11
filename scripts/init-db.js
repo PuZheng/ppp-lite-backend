@@ -58,6 +58,13 @@ var initDB = function (knex) {
         table.string('cause');
         table.text('bundle');
         table.timestamp('timestamp');
+    }).createTable('TB_TODO', function (table) {
+        table.increments();
+        table.string('target');
+        table.text('bundle');
+        table.integer('project_id').references('TB_PROJECT.id');
+        table.boolean('completed');
+        table.timestamp('created_at');
     });
 };
 

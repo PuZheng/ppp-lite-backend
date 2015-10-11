@@ -14,7 +14,7 @@ var Workflow = function (fac) {
 };
 
 Workflow.prototype.start = function (operatorId, bundle) {
-    return this.pass('start', operatorId);
+    return this.pass('start', operatorId, bundle);
 };
 
 Workflow.prototype.abort = function () {
@@ -177,7 +177,7 @@ var Factory = function (name) {
 
 Factory.prototype.task = function (name, onPass, onDeny) {
     name = name.toUpperCase();
-    if (this.taskDefs[name]) {
+    if (name != 'START' && this.taskDefs[name]) {
         throw new Error('task ' + name + ' already exists!');
     }
     this.taskDefs[name] = {

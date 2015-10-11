@@ -84,7 +84,6 @@ router.get('/project-list.json', function *(next) {
         rsp.workflowId && (rsp.workflow = (yield workflowEngine.loadWorkflow(rsp.workflowId)).toJSON());
         this.body = rsp;
     } catch (err) {
-        console.log('asdfalksdaflsjdlsfadlskj', err);
         if (err.message != 'EmptyResponse') {
             throw err;
         }
@@ -126,7 +125,10 @@ router.get('/project-list.json', function *(next) {
             }).flatten().value()
         ).then(t.commit);
     });
-    this.body = {};
+    this.body = (yield models.Project.where('id', this.params.id).fetch({
+        require: true,
+        withRelated: ['assets', 'tags', 'workflow', 'owner', 'projectType']
+    })).toJSON();
     yield next;	
 }).delete('/project-object/:id', function *(next) {
     try {
