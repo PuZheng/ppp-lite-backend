@@ -6,7 +6,7 @@ workflowEngine.createWorkflowFactory('MAIN-PROJECT-WORKFLOW', function (fac) {
     fac.task('START', function (operatorId, bundle, next) {
         // generate a todo 
         models.Todo.forge({
-            type: defs.TOOD_TYPES.PRE_AUDIT,
+            type: defs.TODO_TYPES.PRE_AUDIT,
             project_id: bundle.projectId,
             bundle: JSON.stringify(bundle),
             target: 'role.' + defs.ROLE.PPP_CENTER,
