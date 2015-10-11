@@ -7,14 +7,14 @@ var models = require('./models.js');
 var workflowEngine = require('./setup-workflow.js');
 
 var getOperatorId = function (req) {
-    return req.query.operator;
+    return req.state.user.id || req.query.operator;
 };
 
-router.post('/:type', function *(next) {
+router.post('/:type', koaBody, function *(next) {
     yield next;
     var type = this.params.type.toUpperCase();
     var projectWorkflow = yield workflowEngine.genWorkflow(type);
-    this.body =(yield projectWorkflow.start(getOperatorId(this))).toJSON();
+    this.body =(yield projectWorkflow.start(getOperatorId(this), this.request.body)).toJSON();
 }).get('/:id', function *(next) {
     yield next;
     try {

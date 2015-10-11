@@ -112,6 +112,12 @@ var Action = bookshelf.Model.extend({
     }
 });
 
+var Todo = bookshelf.Model.extend({
+    tableName: 'TB_TODO',
+    project: function () {
+        return this.belongsTo(Project, 'project_id');
+    }
+});
 
 module.exports = {
     Project: Project,
@@ -123,6 +129,7 @@ module.exports = {
     Role: Role,
     Workflow: Workflow,
     Action: Action,
+    Todo: Todo
 };
 
 if (require.main === module) {
