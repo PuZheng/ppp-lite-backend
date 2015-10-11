@@ -116,6 +116,11 @@ var Todo = bookshelf.Model.extend({
     tableName: 'TB_TODO',
     project: function () {
         return this.belongsTo(Project, 'project_id');
+    },
+    serialize: function () {
+        var ret = casing.camelize(bookshelf.Model.prototype.serialize.apply(this));
+        ret.bundle = ret.bundle && JSON.parse(ret.bundle);
+        return ret;
     }
 });
 

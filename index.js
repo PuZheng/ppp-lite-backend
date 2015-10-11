@@ -40,6 +40,7 @@ fs.readFile(config.get('publicKey'), function (err, data) {
     .use(mount('/auth', require('./auth.js')))
     .use(mount('/workflow', require('./workflow.js')))
     .use(mount('/assets', require('./assets.js')))
+    .use(mount('/todo', require('./todo.js')))
     .use(mount('/user', require('./user.js')));
     var config = require('./config.js');
     config.get('env') === 'development' && app.use(slow({

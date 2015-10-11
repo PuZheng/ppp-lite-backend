@@ -21,9 +21,12 @@ router.get('/project-list.json', function *(next) {
         var page = parseInt(this.query.page);
         var perPage = parseInt(this.query.per_page);
         model = model.query(function (q) {
-            q.offset((page - 1) * perPage).limit(perPage).orderBy('created_at', 'desc');
+            q.offset((page - 1) * perPage).limit(perPage);
         });
     }
+    model = model.query(function (q) {
+        q.orderBy('created_at', 'desc');
+    });
 
     if (this.query.published) {
         if (parseInt(this.query.published) === 0) {
