@@ -12,6 +12,17 @@ var defs = require('./defs.js');
 
 var logger = require('./setup-logger.js');
 
+var getProject = function *(id) {
+    var rsp = (yield models.Project.where('id', id).fetch(
+        { 
+            withRelated: ['projectType', 'tags', 'assets', 'owner'], require: true 
+        })).toJSON({ omitPivot: true });
+    rsp.department = (yield knex('TB_DEPARTMENT').join('TB_USER_DEPARTMENT', 'TB_USER_DEPARTMENT.department_id', 'TB_DEPARTMENT.id').where('TB_USER_DEPARTMENT.user_id', rsp.ownerId).select('TB_DEPARTMENT.id', 'TB_DEPARTMENT.name'))[0];
+    rsp.workflowId && (rsp.workflow = (yield workflowEngine.loadWorkflow(rsp.workflowId)).toJSON());
+
+    return rsp;
+};
+
 router.get('/project-list.json', function *(next) {
     'use strict';
     var model = models.Project;
@@ -79,13 +90,7 @@ router.get('/project-list.json', function *(next) {
     yield next;
 }).get('/project-object/:id', function *(next) {
     try {
-        var rsp = (yield models.Project.where('id', this.params.id).fetch(
-            { 
-                withRelated: ['projectType', 'tags', 'assets', 'owner'], require: true 
-            })).toJSON({ omitPivot: true });
-        rsp.department = (yield knex('TB_DEPARTMENT').join('TB_USER_DEPARTMENT', 'TB_USER_DEPARTMENT.department_id', 'TB_DEPARTMENT.id').where('TB_USER_DEPARTMENT.user_id', rsp.ownerId).select('TB_DEPARTMENT.id', 'TB_DEPARTMENT.name'))[0];
-        rsp.workflowId && (rsp.workflow = (yield workflowEngine.loadWorkflow(rsp.workflowId)).toJSON());
-        this.body = rsp;
+        this.body = yield *getProject(this.params.id);
     } catch (err) {
         if (err.message != 'EmptyResponse') {
             throw err;
@@ -128,10 +133,7 @@ router.get('/project-list.json', function *(next) {
             }).flatten().value()
         ).then(t.commit);
     });
-    this.body = (yield models.Project.where('id', this.params.id).fetch({
-        require: true,
-        withRelated: ['assets', 'tags', 'workflow', 'owner', 'projectType']
-    })).toJSON();
+    this.body = yield *getProject(this.params.id);
     yield next;	
 }).delete('/project-object/:id', function *(next) {
     try {

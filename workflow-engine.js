@@ -63,7 +63,7 @@ Workflow.prototype.deny = function (taskName, operatorId, bundle) {
                     cause: 'deny',
                 }, self.fac.taskDefs[rule.from]);
             });
-            self.dumpActions(task, operatorId, bundle, function () {
+            self.dumpActions(task, 'deny', operatorId, bundle, function () {
                 resolve(self);
             });
         });
@@ -92,16 +92,16 @@ Workflow.prototype.pass = function (taskName, operatorId, bundle) {
                     cause: 'pass',
                 }, self.fac.taskDefs[rule.to]);
             });
-            self.dumpActions(task, operatorId, bundle, function () {
+            self.dumpActions(task, 'pass', operatorId, bundle, function () {
                 resolve(self);
             });
         });
     });
 };
 
-Workflow.prototype.dumpActions = function (task, operatorId, bundle, cb) {
+Workflow.prototype.dumpActions = function (task, op, operatorId, bundle, cb) {
     var self = this;
-    // update the action and create more incompleted next actions
+    // update the action and create more uncompleted next actions
     Bookshelf.transaction(function (t) {
         var promises = self._nextTasks.map(function (task) {
             models.Action.forge({
@@ -114,7 +114,7 @@ Workflow.prototype.dumpActions = function (task, operatorId, bundle, cb) {
             });
         });
         promises.push(task.model.save({ 
-            op: 'pass', 
+            op: op, 
             operator_id: operatorId, 
             timestamp: new Date(),
         }, { patch: true, transacting: t }));
@@ -151,7 +151,14 @@ Workflow.prototype.toJSON = function () {
     return {
         id: this.id,
         type: this.model.get('type'),
-        nextTasks: this._nextTasks,
+        nextTasks: this._nextTasks.map(function (task) {
+            return {
+                name: task.name,
+                bundle: task.bundle,
+                operatorId: task.operatorId,
+                timestamp: task.timestamp,
+            };
+        }),
     };
 };
 
