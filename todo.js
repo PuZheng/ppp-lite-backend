@@ -8,10 +8,9 @@ var defs = require('./defs.js');
 
 router.get('/list.json', function *(next) {
     'use strict';
-    var model = models.Todo.query(function (q) {
-        q.where('completed', null);
-    });
-    var totalCount = yield model.count();
+    // why so verbose? https://github.com/tgriesser/bookshelf/issues/941
+    var totalCount = yield models.Todo.where('completed', null).count();
+    var model = models.Todo.where('completed', null);
     if (this.query.page && this.query.per_page) {
         var page = parseInt(this.query.page);
         var perPage = parseInt(this.query.per_page);
@@ -32,6 +31,15 @@ router.get('/list.json', function *(next) {
         totalCount: totalCount,
     };
     yield next; 
+}).put('/object/:id', koaBody, function *(next) {
+    'use strict';
+
+    // TODO should check permission
+    this.body = yield models.Todo.forge({'id': this.params.id}).save(casing.snakeize(this.request.body), {
+        patch: true
+    });
+
+    yield next;
 });
 
 module.exports = koa().use(json()).use(router.routes()).use(router.allowedMethods());
