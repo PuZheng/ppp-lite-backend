@@ -11,6 +11,8 @@ var chance = require('chance')();
 var bunyan = require('bunyan');
 var log = bunyan.createLogger({name: 'make test data'});
 var bcrypt = require('bcrypt');
+var defs = require('../defs.js');
+var util = require('util');
 
 co(function *() {
     'use strict';
@@ -176,6 +178,24 @@ co(function *() {
         ).value();
     }));
     yield knex.insert(data).into('TB_PROJECT_TAG');
+
+    console.log('creating todos');
+    var project = _.sample(projects);
+    var user = (yield knex('TB_USER').join('TB_ROLE', 'TB_USER.role_id', 'TB_ROLE.id').where('TB_ROLE.name', defs.ROLE.OWNER).select('TB_USER.*'))[0];
+    console.log(user);
+    yield knex.insert({
+        type: defs.TODO_TYPES.PRE_AUDIT,
+        target: 'role.' + defs.ROLE.PPP_CENTER,
+        bundle: JSON.stringify({
+            projectId: project.id,
+            project: project,
+            requestor: user,
+            comment: 'asdfasdfasdfasdfasdflkjlkjlkj',
+        }),
+        summary: util.format('请对用户%s发起的新项目%s进行预审', user.id, project.name),
+        project_id: project.id,
+    }).into('TB_TODO');
+
 }).then(function () {
     knex.destroy();
     console.log('\n\n----------------------------------------------');
