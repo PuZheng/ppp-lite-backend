@@ -1,16 +1,20 @@
 var workflowEngine = require('./workflow-engine.js');
 var models = require('./models.js');
 var defs = require('./defs.js');
+var util = require('util');
 
 workflowEngine.createWorkflowFactory('MAIN-PROJECT-WORKFLOW', function (fac) {
     fac.task('START', function (operatorId, bundle, next) {
         // generate a todo 
-        models.Todo.forge({
-            type: defs.TODO_TYPES.PRE_AUDIT,
-            project_id: bundle.projectId,
-            bundle: JSON.stringify(bundle),
-            target: 'role.' + defs.ROLE.PPP_CENTER,
-        }).save().then(function () {
+        models.User.where('id', operatorId).fetch().then(function (user) {
+            return models.Todo.forge({
+                type: defs.TODO_TYPES.PRE_AUDIT,
+                summary: util.format('请对用户%s发起的新项目%s进行预审', user.id, bundle.project.name),
+                project_id: bundle.projectId,
+                bundle: JSON.stringify(bundle),
+                target: 'role.' + defs.ROLE.PPP_CENTER,
+            }).save();
+        }).then(function () {
             next();
         });
     });

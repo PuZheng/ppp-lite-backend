@@ -63,6 +63,7 @@ var initDB = function (knex) {
         table.string('type');
         table.string('target');
         table.text('bundle');
+        table.string('summary');
         table.integer('project_id').references('TB_PROJECT.id');
         table.boolean('completed');
         table.timestamp('created_at');
