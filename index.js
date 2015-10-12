@@ -43,9 +43,9 @@ fs.readFile(config.get('publicKey'), function (err, data) {
     .use(mount('/todo', require('./todo.js')))
     .use(mount('/user', require('./user.js')));
     var config = require('./config.js');
-    //config.get('env') === 'development' && app.use(slow({
-        //delay: config.get('fake_delay'),
-    //}));
+    config.get('env') === 'development' && app.use(slow({
+        delay: config.get('fake_delay'),
+    }));
 
     app.listen(config.get('port'));
 });
