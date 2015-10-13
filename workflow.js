@@ -27,7 +27,6 @@ router.post('/:type', koaBody, function *(next) {
         var workflow = yield workflowEngine.loadWorkflow(this.params.id);
         var action = this.request.body.action;
         var bundle = this.request.body.bundle;
-        console.log(bundle);
         yield workflow[action](this.params.task, this.state.user, bundle);
         this.body = workflow.toJSON();
     } catch (e) {

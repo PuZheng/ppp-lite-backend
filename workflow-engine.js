@@ -2,6 +2,7 @@ var _ = require('lodash');
 var knex = require('./setup-knex.js');
 var Bookshelf = require('bookshelf')(knex);
 var models = require('./models.js');
+var logger = require('./setup-logger.js');
 
 var Workflow = function (fac) {
     this.id = null;

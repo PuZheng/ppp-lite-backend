@@ -12,6 +12,7 @@ var bcrypt = require('bcrypt');
 var defs = require('../defs.js');
 var util = require('util');
 var logger = require('../setup-logger.js');
+var getProject = require('../project.js').getProject;
 
 co(function *() {
     'use strict';
@@ -177,16 +178,19 @@ co(function *() {
     }));
     yield knex.insert(data).into('TB_PROJECT_TAG');
 
-    var project = _.sample(projects);
-    logger.info('publishing project ' + project.id + ' ...');
-    yield * require('./publish-project.js')(project.id);
+    var project = yield *getProject(projects[0].id);
+    logger.info('publishing a project ' + project.id + ' of ' + project.owner.email + ' ...');
+    yield * require('./publish-project.js')(project);
 
+    project = yield *getProject(projects[1].id);
+    logger.info('let a project of ' + project.owner.email + ' passing pre audit');
+    yield * require('./pre-audit-project.js')(project);
 }).then(function () {
     knex.destroy();
     logger.info('\n\n----------------------------------------------');
     logger.info('MAKE TEST DATA DONE!');
     logger.info('----------------------------------------------\n\n');
 }, function (err) {
-    logger.info(err);
+    logger.error(err);
     knex.destroy();
 });

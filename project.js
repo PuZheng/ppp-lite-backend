@@ -49,7 +49,6 @@ router.get('/project-list.json', function *(next) {
 
     if (this.state.user && this.state.user.role.name === defs.ROLE.OWNER) {
         var department = (yield knex('TB_DEPARTMENT').join('TB_USER_DEPARTMENT', 'TB_USER_DEPARTMENT.department_id', 'TB_DEPARTMENT.id').where({'TB_USER_DEPARTMENT.user_id': this.state.user.id}).select('TB_DEPARTMENT.id', 'TB_DEPARTMENT.name'))[0];
-        logger.info(department);
         model = model.query(function (q) {
             q.join('TB_USER', 'TB_PROJECT.owner_id', 'TB_USER.id').join('TB_USER_DEPARTMENT', 'TB_USER.id', 'TB_USER_DEPARTMENT.user_id').where('TB_USER_DEPARTMENT.department_id', department.id);
         });
@@ -151,6 +150,9 @@ router.get('/project-list.json', function *(next) {
     yield next;
 });
 
-module.exports = koa().use(json())
-.use(router.routes())
-.use(router.allowedMethods());
+module.exports = {
+    app: koa().use(json())
+    .use(router.routes())
+    .use(router.allowedMethods()),
+    getProject: getProject,
+};

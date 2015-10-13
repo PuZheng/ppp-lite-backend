@@ -35,7 +35,7 @@ function setup(cb) {
             // and all requests longer than specified time will have level 'warn'
             timeLimit: 100
         }))
-        .use(mount('/project', require('./project.js')))
+        .use(mount('/project', require('./project.js').app))
         .use(mount('/tag', require('./tag.js')))
         .use(mount('/auth', require('./auth.js')))
         .use(mount('/workflow', require('./workflow.js')))
@@ -53,7 +53,11 @@ function setup(cb) {
 
 module.exports = {
     app: app,
-    setup: setup,
+    setupPromise: new Promise(function (resolve, reject) {
+        setup(function (app) {
+            resolve(app);
+        });
+    }),
 };
 
 if (require.main === module) {
