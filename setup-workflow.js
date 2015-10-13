@@ -11,12 +11,31 @@ workflowEngine.createWorkflowFactory('MAIN-PROJECT-WORKFLOW', function (fac) {
         models.Todo.forge({
             type: defs.TODO_TYPES.PRE_AUDIT,
             summary: util.format('请对用户%s发起的新项目%s进行预审', user.name || user.email, bundle.project.name),
-            project_id: bundle.projectId,
+            project_id: bundle.project.id,
             bundle: JSON.stringify(bundle),
             target: 'role.' + defs.ROLE.PPP_CENTER,
+            created_at: new Date(),
         }).save().then(next);
     });
-    fac.task('预审');
+    fac.task('预审', function (user, bundle, next) {
+        models.Todo.forge({
+            type: defs.TODO_TYPES.CHOOSE_CONSULTANT,
+            summary: util.format('请对项目%s选择咨询顾问', bundle.project.name),
+            project_id: bundle.project.id,
+            bundle: JSON.stringify(bundle),
+            target: 'user.' + bundle.project.ownerId,
+            created_at: new Date(),
+        }).save().then(next);
+    }, function (user, bundle, next) {
+        models.Todo.forge({
+            type: defs.TODO_TYPES.PUBLISH,
+            summary: util.format('请重新发布项目%s', bundle.project.name),
+            project_id: bundle.projectId,
+            bundle: JSON.stringify(bundle),
+            target: 'user.' + bundle.project.ownerId,
+            created_at: new Date(),
+        }).save().then(next);
+    });
     fac.task('选择咨询公司');
     fac.task('咨询公司接受邀请');
     fac.task('提交实施方案');

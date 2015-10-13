@@ -25,21 +25,10 @@ router.post('/:type', koaBody, function *(next) {
 }).put('/:id/:task', koaBody, function *(next) {
     try {
         var workflow = yield workflowEngine.loadWorkflow(this.params.id);
-        yield workflow.pass(this.params.task, getOperatorId(this), this.request.body);
-        this.body = workflow.toJSON();
-    } catch (e) {
-        if (e.code != 'INVALID_TASK' && e.code != 'WORKFLOW_ENDED') {
-            throw e;
-        }
-        this.status = 403;
-        this.body = {
-            reason: e.message
-        };
-    }
-}).delete('/:id/:task', function *(next) {
-    try {
-        var workflow = yield workflowEngine.loadWorkflow(this.params.id);
-        yield workflow.deny(this.params.task, getOperatorId(this), this.request.body);
+        var action = this.request.body.action;
+        var bundle = this.request.body.bundle;
+        console.log(bundle);
+        yield workflow[action](this.params.task, this.state.user, bundle);
         this.body = workflow.toJSON();
     } catch (e) {
         if (e.code != 'INVALID_TASK' && e.code != 'WORKFLOW_ENDED') {
