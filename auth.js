@@ -6,6 +6,7 @@ var koaBody = require('koa-body')();
 var jwt = require('koa-jwt');
 var fs = require('mz/fs');
 var defs = require('./defs.js');
+var logger = require('./setup-logger.js');
 
 var privateKey;
 
@@ -31,7 +32,6 @@ router.post('/login', koaBody, function *(next) {
         };
         this.status = 403;
     }
-    yield next;
 });
 
 module.exports = koa().use(router.routes())
