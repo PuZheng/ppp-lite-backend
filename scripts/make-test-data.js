@@ -1,5 +1,4 @@
 #! /usr/bin/env node
-
 var knex = require('../setup-knex.js');
 var co = require('co');
 var fs = require('fs');
@@ -9,15 +8,15 @@ var setupData = require('./setup-data.js');
 var _ = require('lodash');
 var chance = require('chance')();
 var bunyan = require('bunyan');
-var log = bunyan.createLogger({name: 'make test data'});
 var bcrypt = require('bcrypt');
 var defs = require('../defs.js');
 var util = require('util');
+var logger = require('../setup-logger.js');
 
 co(function *() {
     'use strict';
     yield setupData();
-    console.log('creating project types...');
+    logger.info('creating project types...');
     yield knex.insert([
         '市政基础设施建设',
         '文教卫',
@@ -33,7 +32,7 @@ co(function *() {
     })).into('TB_PROJECT_TYPE');
 
 
-    console.log('creating roles...');
+    logger.info('creating roles...');
     yield knex('TB_ROLE').insert([
        '业主',
        'PPP中心',
@@ -51,7 +50,7 @@ co(function *() {
         roles[role.name] = role;
     }
 
-    console.log('creating users...');
+    logger.info('creating users...');
 
     var genHash = function (user) {
         return new Promise(function (resolve, reject) {
@@ -130,10 +129,9 @@ co(function *() {
         }).into('TB_USER');
     }
 
-    console.log('creating projects...');
+    logger.info('creating projects...');
     var projectTypes = yield knex('TB_PROJECT_TYPE').select('*');
     var owners = yield knex('TB_USER').join('TB_ROLE', 'TB_USER.role_id', 'TB_ROLE.id').where('TB_ROLE.name', '业主').select('TB_USER.id');
-    log.error(owners);
     yield knex.insert(_(128).times(function () {
         return {
             name: chance.word(),
@@ -148,7 +146,7 @@ co(function *() {
         };
     }).value()).into('TB_PROJECT');
 
-    console.log('creating tags...');
+    logger.info('creating tags...');
     yield knex.insert([
         '建设',
         '水利',
@@ -179,29 +177,16 @@ co(function *() {
     }));
     yield knex.insert(data).into('TB_PROJECT_TAG');
 
-    console.log('creating todos');
     var project = _.sample(projects);
-    var user = (yield knex('TB_USER').join('TB_ROLE', 'TB_USER.role_id', 'TB_ROLE.id').where('TB_ROLE.name', defs.ROLE.OWNER).select('TB_USER.*'))[0];
-    console.log(user);
-    yield knex.insert({
-        type: defs.TODO_TYPES.PRE_AUDIT,
-        target: 'role.' + defs.ROLE.PPP_CENTER,
-        bundle: JSON.stringify({
-            projectId: project.id,
-            project: project,
-            requestor: user,
-            comment: 'asdfasdfasdfasdfasdflkjlkjlkj',
-        }),
-        summary: util.format('请对用户%s发起的新项目%s进行预审', user.id, project.name),
-        project_id: project.id,
-    }).into('TB_TODO');
+    logger.info('publishing project ' + project.id + ' ...');
+    yield * require('./publish-project.js')(project.id);
 
 }).then(function () {
     knex.destroy();
-    console.log('\n\n----------------------------------------------');
-    console.log('MAKE TEST DATA DONE!');
-    console.log('----------------------------------------------\n\n');
+    logger.info('\n\n----------------------------------------------');
+    logger.info('MAKE TEST DATA DONE!');
+    logger.info('----------------------------------------------\n\n');
 }, function (err) {
+    logger.info(err);
     knex.destroy();
-    console.log(err);
 });
