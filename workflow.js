@@ -3,18 +3,14 @@ var router = require('koa-router')();
 var koaBody = require('koa-body')();
 var json = require('koa-json');
 var models = require('./models.js');
+var logger = require('./setup-logger.js');
 
 var workflowEngine = require('./setup-workflow.js');
 
-var getOperatorId = function (req) {
-    return req.state.user.id || req.query.operator;
-};
-
 router.post('/:type', koaBody, function *(next) {
-    yield next;
     var type = this.params.type.toUpperCase();
     var projectWorkflow = yield workflowEngine.genWorkflow(type);
-    this.body =(yield projectWorkflow.start(getOperatorId(this), this.request.body)).toJSON();
+    this.body =(yield projectWorkflow.start(this.state.user, this.request.body)).toJSON();
 }).get('/:id', function *(next) {
     yield next;
     try {
