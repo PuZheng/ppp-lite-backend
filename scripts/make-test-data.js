@@ -34,13 +34,7 @@ co(function *() {
 
 
     logger.info('creating roles...');
-    yield knex('TB_ROLE').insert([
-       '业主',
-       'PPP中心',
-       '咨询顾问',
-       '投资人',
-       '政府代表',
-    ].map(function (role) {
+    yield knex('TB_ROLE').insert(_.values(defs.ROLE).map(function (role) {
         return {
             name: role 
         };

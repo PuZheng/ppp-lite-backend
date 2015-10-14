@@ -2,6 +2,7 @@ module.exports = {
     ROLE: {
         OWNER: '业主',
         PPP_CENTER: 'PPP中心',
+        CONSULTANT: '咨询顾问',
     },
     TODO_TYPES: {
         PUBLISH: 'publish',
