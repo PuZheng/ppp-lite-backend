@@ -59,7 +59,7 @@ var User = bookshelf.Model.extend({
         var ret = casing.camelize(bookshelf.Model.prototype.serialize.apply(this));
         delete ret.password;
         return ret;
-    }
+    },
 }, {
     login: function (email, password) {
         if (!email || !password) {
@@ -124,6 +124,10 @@ var Todo = bookshelf.Model.extend({
     }
 });
 
+var Firm = bookshelf.Model.extend({
+    tableName: 'TB_FIRM',
+});
+
 module.exports = {
     Project: Project,
     ProjectType: ProjectType,
@@ -134,7 +138,8 @@ module.exports = {
     Role: Role,
     Workflow: Workflow,
     Action: Action,
-    Todo: Todo
+    Todo: Todo,
+    Firm: Firm,
 };
 
 if (require.main === module) {

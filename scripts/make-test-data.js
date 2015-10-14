@@ -45,6 +45,14 @@ co(function *() {
         roles[role.name] = role;
     }
 
+    logger.info('creating consulting firms');
+
+    yield knex('TB_FIRM').insert(_.times(3, function (n) {
+        return {
+            name: 'zxgs' + n,
+        };
+    }));
+
     logger.info('creating users...');
 
     var genHash = function (user) {
@@ -112,16 +120,22 @@ co(function *() {
         }).into('TB_USER');
     }
 
-    for (let user of _.times(2, function (n) {
+    var consultingFirms = yield knex('TB_FIRM').select('*');
+    for (let user of _.times(12, function (n) {
         return 'zx' + n;
     })) {
         let hash = yield genHash(user);
-        yield knex.insert({
+        var userId = (yield knex.insert({
             email: user + '@gmail.com',
             password: hash,
             role_id: roles['咨询顾问'].id,
             created_at: new Date(),
-        }).into('TB_USER');
+        }).into('TB_USER'))[0];
+
+        yield knex('TB_USER_FIRM').insert({
+            user_id: userId,
+            firm_id: _.sample(consultingFirms).id,
+        });
     }
 
     logger.info('creating projects...');
