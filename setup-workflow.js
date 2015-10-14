@@ -45,7 +45,8 @@ workflowEngine.createWorkflowFactory('MAIN-PROJECT-WORKFLOW', function (fac) {
             target: 'user.' + bundle.consultant,
             created_at: new Date(),
         }).save().then(function () {
-            return models.Project.where({'id': bundle.project.id}).save({
+            logger.error(bundle);
+            return models.Project.forge('id', bundle.project.id).save({
                 consultant_id: bundle.consultant,
             }, { patch: true });
         });

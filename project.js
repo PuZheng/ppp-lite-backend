@@ -54,13 +54,24 @@ router.get('/project-list.json', function *(next) {
         });
     }
 
+    // 由于顾问是第三方， 所以只能看到其参与的项目
+    if (this.state.user.role.name === defs.ROLE.CONSULTANT) {
+        var consultantId = this.state.user.id;
+        model = model.query(function (q) {
+            q.join('TB_USER', 'TB_PROJECT.consultant_id', 'TB_USER.id').where('TB_USER.id', consultantId);
+        });
+    }
+
     var data = (yield model.fetchAll({ withRelated: ['projectType', 'tags', 'owner'] })).toJSON({
         omitPivot: true
     });
 
     for (let p of data) {
-        p.workflowId && (p.workflow = (yield workflowEngine.loadWorkflow(p.workflowId)).toJSON());
+        if (p.workflowId) {
+            p.workflow = (yield workflowEngine.loadWorkflow(p.workflowId)).toJSON();
+        }
     }
+
 
     this.body = {
         data: data,
