@@ -8,5 +8,6 @@ module.exports = {
         PUBLISH: 'publish',
         PRE_AUDIT: 'pre-audit',
         CHOOSE_CONSULTANT: 'choose-consultant',
+        ACCEPT_INVITATION: 'accept-invitation',
     }
 };

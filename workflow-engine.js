@@ -52,9 +52,7 @@ Workflow.prototype.deny = function (taskName, operatorId, bundle) {
     var self = this;
 
     return new Promise(function (resolve, reject) {
-        (function (cb) {
-            task.onDeny? task.onDeny(operatorId, bundle, cb): cb();
-        })(function () {
+        var cb = function () {
             self._nextTasks = task.rules.filter(function (rule) {
                 return rule.to === taskName;
             }).map(function (rule) {
@@ -67,7 +65,8 @@ Workflow.prototype.deny = function (taskName, operatorId, bundle) {
             self.dumpActions(task, 'deny', operatorId, bundle, function () {
                 resolve(self);
             });
-        });
+        };
+        task.onDeny? task.onDeny(operatorId, bundle).then(cb): cb();
     });
 };
 
@@ -81,9 +80,7 @@ Workflow.prototype.pass = function (taskName, operatorId, bundle) {
     var self = this;
 
     return new Promise(function (resolve, reject) {
-        (function (cb) {
-            task.onPass? task.onPass(operatorId, bundle, cb): cb();
-        })(function () {
+        var cb = function () {
             self._nextTasks = task.rules.filter(function (rule) {
                 return rule.from === taskName;
             }).map(function (rule) {
@@ -96,7 +93,10 @@ Workflow.prototype.pass = function (taskName, operatorId, bundle) {
             self.dumpActions(task, 'pass', operatorId, bundle, function () {
                 resolve(self);
             });
-        });
+        };
+        task.onPass? task.onPass(operatorId, bundle).then(cb).catch(function (err) {
+            reject(err);
+        }): cb();
     });
 };
 
