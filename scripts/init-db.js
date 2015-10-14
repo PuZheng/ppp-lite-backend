@@ -35,7 +35,7 @@ var initDB = function (knex) {
         table.increments();
         table.string('name').unique();
     }).createTable('TB_USER_DEPARTMENT', function (table) {
-        table.integer('user_id').references('TB_USER.id'),
+        table.integer('user_id').references('TB_USER.id');
         table.integer('department_id').references('TB_DEPARTMENT.id');
     }).createTable('TB_ASSET', function (table) {
         table.increments();
@@ -67,6 +67,12 @@ var initDB = function (knex) {
         table.integer('project_id').references('TB_PROJECT.id');
         table.boolean('completed');
         table.timestamp('created_at');
+    }).createTable('TB_FIRM', function (table) {
+        table.increments();
+        table.string('name');
+    }).createTable('TB_USER_FIRM', function (table) {
+        table.integer('user_id').references('TB_USER.id');
+        table.integer('firm_id').references('TB_FIRM.id');
     });
 };
 
