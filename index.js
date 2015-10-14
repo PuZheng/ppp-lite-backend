@@ -7,6 +7,7 @@ var fs = require('fs');
 var config = require('./config.js');
 var jwt = require('koa-jwt');
 var logger = require('./setup-logger.js');
+var error = require('koa-error');
 
 var app = koa();
 
@@ -17,8 +18,8 @@ function setup(cb) {
         if (err) {
             throw err;
         }
-
-        app.use(jwt({
+        app.use(error())
+        .use(jwt({
             secret: data,
             algorithm: 'RS256',
         }).unless(function () {

@@ -6,37 +6,50 @@ var logger = require('./setup-logger.js');
 
 
 workflowEngine.createWorkflowFactory('MAIN-PROJECT-WORKFLOW', function (fac) {
-    fac.task('START', function (user, bundle, next) {
+    fac.task('START', function (user, bundle) {
         // generate a todo 
-        models.Todo.forge({
+        return models.Todo.forge({
             type: defs.TODO_TYPES.PRE_AUDIT,
             summary: util.format('请对用户%s发起的新项目%s进行预审', user.name || user.email, bundle.project.name),
             project_id: bundle.project.id,
             bundle: JSON.stringify(bundle),
             target: 'role.' + defs.ROLE.PPP_CENTER,
             created_at: new Date(),
-        }).save().then(next);
+        }).save();
     });
     fac.task('预审', function (user, bundle, next) {
-        models.Todo.forge({
+        return models.Todo.forge({
             type: defs.TODO_TYPES.CHOOSE_CONSULTANT,
             summary: util.format('请对项目%s选择咨询顾问', bundle.project.name),
             project_id: bundle.project.id,
             bundle: JSON.stringify(bundle),
             target: 'user.' + bundle.project.ownerId,
             created_at: new Date(),
-        }).save().then(next);
+        }).save();
     }, function (user, bundle, next) {
-        models.Todo.forge({
+        return models.Todo.forge({
             type: defs.TODO_TYPES.PUBLISH,
             summary: util.format('请重新发布项目%s', bundle.project.name),
             project_id: bundle.projectId,
             bundle: JSON.stringify(bundle),
             target: 'user.' + bundle.project.ownerId,
             created_at: new Date(),
-        }).save().then(next);
+        }).save();
     });
-    fac.task('选择咨询公司');
+    fac.task('选择咨询公司', function (user, bundle) {
+        return models.Todo.forge({
+            type: defs.TODO_TYPES.ACCEPT_INVITATION,
+            summary: util.format('业主%s邀请您参与项目%s', user.name || user.email, bundle.project.name),
+            projectId: bundle.project.id,
+            bundle: JSON.stringify(bundle),
+            target: 'user.' + bundle.consultant,
+            created_at: new Date(),
+        }).save().then(function () {
+            return models.Project.where({'id': bundle.project.id}).save({
+                consultant_id: bundle.consultant,
+            }, { patch: true });
+        });
+    });
     fac.task('咨询公司接受邀请');
     fac.task('提交实施方案');
     fac.task('实施方案内部审核');
