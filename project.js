@@ -15,11 +15,13 @@ var logger = require('./setup-logger.js');
 var getProject = function *(id) {
     var rsp = (yield models.Project.where('id', id).fetch(
         { 
-            withRelated: ['projectType', 'tags', 'assets', 'owner'], require: true 
+            withRelated: ['projectType', 'tags', 'assets', 'owner', 'consultant'], require: true 
         })).toJSON({ omitPivot: true });
     rsp.department = (yield knex('TB_DEPARTMENT').join('TB_USER_DEPARTMENT', 'TB_USER_DEPARTMENT.department_id', 'TB_DEPARTMENT.id').where('TB_USER_DEPARTMENT.user_id', rsp.ownerId).select('TB_DEPARTMENT.id', 'TB_DEPARTMENT.name'))[0];
     rsp.workflowId && (rsp.workflow = (yield workflowEngine.loadWorkflow(rsp.workflowId)).toJSON());
-
+    rsp.consultant && (rsp.consultingFirm = (yield models.Firm.query(function (q) {
+        q.join('TB_USER_FIRM', 'TB_USER_FIRM.firm_id', 'TB_FIRM.id').where('TB_USER_FIRM.user_id', rsp.consultant.id);
+    }).fetch()).toJSON());
     return rsp;
 };
 

@@ -26,6 +26,10 @@ var Project = bookshelf.Model.extend({
 
     owner: function () {
         return this.belongsTo(User, 'owner_id');
+    },
+
+    consultant: function () {
+        return this.belongsTo(User, 'consultant_id');
     }
 });
 
