@@ -186,11 +186,12 @@ co(function *() {
     }));
     yield knex.insert(data).into('TB_PROJECT_TAG');
 
-    var project = yield *getProject(projects[0].id);
+    var projectsOfWSJ1 = yield knex('TB_PROJECT').join('TB_USER', 'TB_PROJECT.owner_id', 'TB_USER.id').where('email', 'wsj1@gmail.com').select("TB_PROJECT.id");
+    var project = yield *getProject(projectsOfWSJ1[0].id);
     logger.info('publishing a project ' + project.id + ' of ' + project.owner.email + ' ...');
     yield * require('./publish-project.js')(project);
 
-    project = yield *getProject(projects[1].id);
+    project = yield *getProject(projectsOfWSJ1[1].id);
     logger.info('let a project of ' + project.owner.email + ' passing pre audit');
     yield * require('./pre-audit-project.js')(project);
 }).then(function () {

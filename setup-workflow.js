@@ -40,7 +40,7 @@ workflowEngine.createWorkflowFactory('MAIN-PROJECT-WORKFLOW', function (fac) {
         return models.Todo.forge({
             type: defs.TODO_TYPES.ACCEPT_INVITATION,
             summary: util.format('业主%s邀请您参与项目%s', user.name || user.email, bundle.project.name),
-            projectId: bundle.project.id,
+            project_id: bundle.project.id,
             bundle: JSON.stringify(bundle),
             target: 'user.' + bundle.consultant,
             created_at: new Date(),
