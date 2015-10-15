@@ -31,8 +31,6 @@ router.get('/list.json', function *(next) {
     this.body = yield models.Todo.forge({'id': this.params.id}).save(casing.snakeize(this.request.body), {
         patch: true
     });
-
-    yield next;
 });
 
 module.exports = koa().use(json()).use(router.routes()).use(router.allowedMethods());

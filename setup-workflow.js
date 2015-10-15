@@ -60,6 +60,25 @@ workflowEngine.createWorkflowFactory('MAIN-PROJECT-WORKFLOW', function (fac) {
             target: 'user.' + bundle.project.consultantId,
             created_at: new Date(),
         }).save();
+    }, function (user, bundle) {
+        return models.Firm.query(function (q) {
+            q.join('TB_USER_FIRM', 'TB_USER_FIRM.firm_id', 'TB_FIRM.id').where('TB_USER_FIRM.user_id', user.id);
+        }).fetch().then(function (firmModel) {
+            return models.Todo.forge({
+                type: defs.TODO_TYPES.CHOOSE_CONSULTANT,
+                summary: util.format('咨询顾问%s(所属公司%s)拒绝了您的邀请，请重新为项目%s选择咨询顾问', 
+                                     user.name || user.email, firmModel.get('name'), bundle.project.name),
+                project_id: bundle.project.id,
+                bundle: JSON.stringify(bundle),
+                target: 'user.' + bundle.project.ownerId,
+                created_at: new Date(),
+            }).save();
+        }).then(function () {
+            // 拒绝接受项目， 清除掉项目的咨询顾问字段
+            return models.Project.forge('id', bundle.project.id).save({
+                consultant_id: null,
+            }, { patch: true });
+        });
     });
     fac.task('提交实施方案');
     fac.task('实施方案内部审核');

@@ -66,7 +66,9 @@ Workflow.prototype.deny = function (taskName, operatorId, bundle) {
                 resolve(self);
             });
         };
-        task.onDeny? task.onDeny(operatorId, bundle).then(cb): cb();
+        task.onDeny? task.onDeny(operatorId, bundle).then(cb, function (err) {
+            reject(err);
+        }): cb();
     });
 };
 
@@ -94,7 +96,7 @@ Workflow.prototype.pass = function (taskName, operatorId, bundle) {
                 resolve(self);
             });
         };
-        task.onPass? task.onPass(operatorId, bundle).then(cb).catch(function (err) {
+        task.onPass? task.onPass(operatorId, bundle).then(cb, function (err) {
             reject(err);
         }): cb();
     });
