@@ -146,7 +146,6 @@ router.get('/project-list.json', function *(next) {
         ).then(t.commit);
     });
     this.body = yield *getProject(this.params.id);
-    yield next;	
 }).delete('/project-object/:id', function *(next) {
     try {
         var model = yield models.Project.where('id', this.params.id).fetch({
@@ -160,7 +159,6 @@ router.get('/project-list.json', function *(next) {
         this.status = 404;
     }
     this.body = {};
-    yield next;
 });
 
 module.exports = {

@@ -9,6 +9,7 @@ var models = require('./models.js');
 var knex = require('./setup-knex.js');
 var Bookshelf = require('bookshelf')(knex);
 var send = require('koa-send');
+var logger = require('./setup-logger.js');
 
 var md5 = function (s) {
     var hash = crypto.createHash('md5');
@@ -51,12 +52,15 @@ router.post('/', function *(next) {
             }
         )).then(t.commit);
     });
+    logger.error(assets);
     this.body = {
         data: assets.map(function (asset) {
             return asset.toJSON();
         })
     };
-    yield next;
+    logger.error(this.body);
+    // TODO figure out why can't yiel next?
+    // yield next;
 }).get(/uploads\/(.*)/, function *(next) {
     try {
         var path_ = path.join('assets/uploads', this.params[0]);

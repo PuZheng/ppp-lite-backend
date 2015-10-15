@@ -80,7 +80,16 @@ workflowEngine.createWorkflowFactory('MAIN-PROJECT-WORKFLOW', function (fac) {
             }, { patch: true });
         });
     });
-    fac.task('提交实施方案');
+    fac.task('提交实施方案', function (user, bundle) {
+        return models.Todo.forge({
+            type: defs.TODO_TYPES.INTERNAL_AUDIT,
+            summary: util.format('请对项目%s进行内部审核', bundle.project.name),
+            project_id: bundle.project.id,
+            bundle: JSON.stringify(bundle),
+            target: 'user.' + bundle.project.ownerId,
+            created_at: new Date(),
+        }).save();
+    });
     fac.task('实施方案内部审核');
     fac.task('实施方案审核');
 

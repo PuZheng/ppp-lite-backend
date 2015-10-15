@@ -10,5 +10,7 @@ module.exports = {
         CHOOSE_CONSULTANT: 'choose-consultant',
         ACCEPT_INVITATION: 'accept-invitation',
         UPLOAD_SCHEME: 'upload-scheme',
+        INTERNAL_AUDIT: 'internal-audit',
+        AUDIT: 'audit',
     }
 };
