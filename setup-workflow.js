@@ -90,7 +90,25 @@ workflowEngine.createWorkflowFactory('MAIN-PROJECT-WORKFLOW', function (fac) {
             created_at: new Date(),
         }).save();
     });
-    fac.task('实施方案内部审核');
+    fac.task('实施方案内部审核', function (user, bundle) {
+        return models.Todo.forge({
+            type: defs.TODO_TYPES.AUDIT,
+            summary: util.format('请对项目%s进行审核', bundle.project.name),
+            project_id: bundle.project.id,
+            bundle: JSON.stringify(bundle),
+            target: 'role.' + defs.ROLE.PPP_CENTER,
+            created_at: new Date(),
+        }).save();
+    }, function (user, bundle) {
+        return models.Todo.forge({
+            type: defs.TODO_TYPES.UPLOAD_SCHEME,
+            summary: util.format('内部审核不通过, 请对项目%s重新提交实施方案', bundle.project.name),
+            project_id: bundle.project.id,
+            bundle: JSON.stringify(bundle),
+            target: 'user.' + bundle.project.consultantId,
+            created_at: new Date(),
+        }).save();
+    });
     fac.task('实施方案审核');
 
     fac.seq('START', '预审');
